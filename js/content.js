@@ -28,7 +28,7 @@ $(setInterval(function() {
         }
     });
 
-    if(ticker%30 == 0 && $(".raty")[0] == undefined){
+    if(ticker%30 == 0 && $(".raty-box")[0] == undefined){
         showOrderedRaty();
         showRaty();
     }
@@ -135,9 +135,7 @@ async function showRaty() {
 
 function removeDishToReload(){
     if(dishToReload != undefined) {
-        $(".raty-box." + dishToReload).remove();
-        $(".comment-box." + dishToReload).remove();
-        $(".height-10." + dishToReload).remove();
+        $("."+dishToReload).remove();
         dishToReload = undefined;
     }
 }
