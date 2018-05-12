@@ -6,7 +6,6 @@ const MAX_LOADINGS = 1;
 const SCAN_INTERVAL_MS = 100;
 
 let dishToReload = undefined;
-let ticker = 0;
 
 if(getCookie('tempId') == undefined) {
     document.cookie = ('tempId=' + (new Date()).getTime()+Math.random() + "; max-age=86400");
@@ -14,7 +13,6 @@ if(getCookie('tempId') == undefined) {
 
 // listen for changes
 $(setInterval(function() {
-    ticker++;
     $("div[class$='style-slide']").unbind().on('click', function () {
         if(loadings<MAX_LOADINGS) {
             showRaty();
@@ -24,14 +22,8 @@ $(setInterval(function() {
     $("li[class$='js-scroll-item']").unbind().on('click', function () {
         if(loadings<MAX_LOADINGS) {
             showRaty();
-            showOrderedRaty();
         }
     });
-
-    if(ticker%30 == 0 && $(".raty-box")[0] == undefined){
-        showOrderedRaty();
-        showRaty();
-    }
 
     if (currentPage != window.location.href) {
         currentPage = window.location.href;
@@ -55,6 +47,7 @@ function sleep(ms) {
 }
 
 async function showOrderedRaty() {
+    await sleep(1000);
 
     let waitMs = 0;
     while($("span[class$='-style-orderDishWording']").attr("title") == undefined){
@@ -135,7 +128,9 @@ async function showRaty() {
 
 function removeDishToReload(){
     if(dishToReload != undefined) {
-        $("."+dishToReload).remove();
+        $(".raty-box." + dishToReload).remove();
+        $(".comment-box." + dishToReload).remove();
+        $(".height-15." + dishToReload).remove();
         dishToReload = undefined;
     }
 }
@@ -166,7 +161,7 @@ function renderRatyBox(item, total, count, dishName, comments){
 function renderCommentList(comments) {
     let result = "<div class='comment-list'>";
     if(comments != undefined){
-        result += comments.map((comment)=> ("<div class='comment-item'>"+comment+"</div>")).join('');
+        result += comments.map((comment) => ("<div class='comment-item'>"+comment+"</div>")).join('');
     } else{
         result += "<div class='comment-absent'>暂无评论</div>"
     }
@@ -206,7 +201,7 @@ function uploadScore(dish, score){
     dishToReload = dish;
     let data = "?dishName=" + dish + "&score="
         + (score+"").replace(/[\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|||\-|\_|\+|\=|\||\\||\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?]/g,"")
-        + "&id=" + getCookie('tempId');
+        + "&id=" + getId();
     xhttpGet(HOST + "/upload_score" + data, (res) => {
         if(res == 'invalid params'){
             $.toast('非法参数');
@@ -231,7 +226,7 @@ function uploadComment(dish, comment){
     dishToReload = dish;
     let data = "?dishName=" + dish + "&comment="
         + comment
-        + "&id=" + getCookie('tempId');
+        + "&id=" + getId();
     xhttpGet(HOST + "/upload_comment" + data, (res) => {
         if(res == 'invalid params'){
             $.toast('非法参数');
@@ -274,4 +269,8 @@ function getCookie(key) {
         return (arr[2]);
     else
         return null;
+}
+
+function getId() {
+    return ((getCookie('remember')!=undefined)?getCookie('remember'):(getCookie('tempId')));
 }
