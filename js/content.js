@@ -138,7 +138,7 @@ function removeDishToReload(){
 function renderRatyBox(item, total, count, dishName, comments){
 
     let commentListBlock = renderCommentList(comments);
-
+    let commentCount = comments==undefined?0:comments.length;
     item.after(
         "<div class='comment-box "+dishName+"' style='display: none;'>" +
             commentListBlock +
@@ -151,7 +151,7 @@ function renderRatyBox(item, total, count, dishName, comments){
             "<div class='score'>" + (total / (count+!count)).toFixed(1) +
                 "<span class='vote-count'>" + "共" + count + "人评分" + "</span>" +
             "</div>" +
-            "<button class='comment "+ dishName + "'>评论</button>" + "<button class='submit'>提交</button>" +
+            "<button class='comment "+ dishName + "'>"+commentCount+"条评论</button>" + "<button class='submit'>提交</button>" +
             "<div class='star " + dishName + "' title='" + dishName + "'></div>" +
         "</div>"
     );
@@ -199,7 +199,7 @@ function uploadScore(dish, score){
         return;
     }
     dishToReload = dish;
-    let data = "?dishName=" + dish + "&score="
+    let data = "?dishName=" + encodeURIComponent(dish) + "&score="
         + (score+"").replace(/[\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|||\-|\_|\+|\=|\||\\||\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?]/g,"")
         + "&id=" + getId();
     xhttpGet(HOST + "/upload_score" + data, (res) => {
@@ -224,8 +224,8 @@ function uploadComment(dish, comment){
         return;
     }
     dishToReload = dish;
-    let data = "?dishName=" + dish + "&comment="
-        + comment
+    let data = "?dishName=" + encodeURIComponent(dish) + "&comment="
+        + encodeURIComponent(comment)
         + "&id=" + getId();
     xhttpGet(HOST + "/upload_comment" + data, (res) => {
         if(res == 'invalid params'){
@@ -246,9 +246,10 @@ function uploadComment(dish, comment){
 function loadScore(dishList, cb) {
     if(loadings < MAX_LOADINGS) {
         loadings++;
-        let requestData = "?dishNames=" + dishList.join('spliter');
+        let requestData = "?dishNames=" + encodeURIComponent(dishList.join('spliter'));
         xhttpGet(HOST + "/get_scores" + requestData, (res) => {
             loadings--;
+            console.log(res)
             cb(res);
         })
     }
@@ -272,5 +273,5 @@ function getCookie(key) {
 }
 
 function getId() {
-    return ((getCookie('remember')!=undefined)?getCookie('remember'):(getCookie('tempId')));
+    return encodeURIComponent((getCookie('remember')!=undefined)?getCookie('remember'):(getCookie('tempId')));
 }
