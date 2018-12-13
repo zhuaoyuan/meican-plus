@@ -249,7 +249,6 @@ function loadScore(dishList, cb) {
         let requestData = "?dishNames=" + encodeURIComponent(dishList.join('spliter'));
         xhttpGet(HOST + "/get_scores" + requestData, (res) => {
             loadings--;
-            console.log(res)
             cb(res);
         })
     }
