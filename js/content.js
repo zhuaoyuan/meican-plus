@@ -59,7 +59,7 @@ async function showOrderedRaty() {
     }
 
     let orderedDish = $("span[class$='-style-orderDishWording']").attr("title").split('(')[0];
-    let dishList = [orderedDish];
+    let dishList = [removeSpecialChars(orderedDish)];
     loadScore(dishList, (scoreList) => {
 
         scoreList = JSON.parse(scoreList);
@@ -70,7 +70,7 @@ async function showOrderedRaty() {
         });
 
         //unhandled exception
-        let result = scoreMap[$("span[class$='-style-orderDishWording']").attr("title").split('(')[0]];
+        let result = scoreMap[removeSpecialChars($("span[class$='-style-orderDishWording']").attr("title").split('(')[0])];
         removeDishToReload();
         if(result != undefined && $(".raty-box")[0] == undefined){
             let total = result.score | 0;
@@ -99,7 +99,7 @@ async function showRaty() {
 
     let dishList = [];
     $("div[class$='dishTitle']").each(function() {
-        dishList.push(this.innerText);
+        dishList.push(removeSpecialChars(this.innerText));
     });
 
     loadScore(dishList, (scoreList) => {
@@ -112,13 +112,15 @@ async function showRaty() {
 
         removeDishToReload();
         $("div[class$='dishTitle']").each(function() {
-            if($(this).parents("li").next().hasClass("raty-box") || scoreMap[this.innerText] == undefined){
+            let thisDish = removeSpecialChars(this.innerText)
+
+            if($(this).parents("li").next().hasClass("raty-box") || scoreMap[thisDish] == undefined){
                 return;
             }
-            let total = scoreMap[this.innerText].score | 0;
-            let count = scoreMap[this.innerText].count | 0;
-            let comments = JSON.parse(scoreMap[this.innerText].comments);
-            renderRatyBox($(this).parents("li"), total, count, this.innerText, comments);
+            let total = scoreMap[thisDish].score | 0;
+            let count = scoreMap[thisDish].count | 0;
+            let comments = JSON.parse(scoreMap[thisDish].comments);
+            renderRatyBox($(this).parents("li"), total, count, thisDish, comments);
         });
         bindSubmit();
         bindToggleComment();
@@ -200,7 +202,7 @@ function uploadScore(dish, score){
     }
     dishToReload = dish;
     let data = "?dishName=" + encodeURIComponent(dish) + "&score="
-        + (score+"").replace(/[\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|||\-|\_|\+|\=|\||\\||\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?]/g,"")
+        + removeSpecialChars(score+"")
         + "&id=" + getId();
     xhttpGet(HOST + "/upload_score" + data, (res) => {
         if(res == 'invalid params'){
@@ -260,6 +262,10 @@ function xhttpGet(url, cb){
         action: 'xhttp',
         url: url
     }, cb);
+}
+
+function removeSpecialChars(str){
+    return str.replace(/[\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|||\-|\_|\+|\=|\||\\||\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?]/g,"")
 }
 
 function getCookie(key) {
