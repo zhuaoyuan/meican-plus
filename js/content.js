@@ -1,5 +1,5 @@
 let currentPage = "";
-const HOST = "http://45.77.209.200";
+const HOST = "http://129.211.141.226";
 
 let loadings = 0;
 const MAX_LOADINGS = 1;
