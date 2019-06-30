@@ -10,8 +10,7 @@
         "default_popup": "html/popup.html"
     },
     "permissions": [
-        "http://*/*",
-        "https://*/*"
+        "https://meican.com/"
     ],
     "icons": {
         "64": "img/icon.png"
